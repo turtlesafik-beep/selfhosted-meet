@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Бухать будешь?</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+    font-family: system-ui, sans-serif;
+    color: #fff;
+    overflow: hidden;
+  }
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+  .buttons {
+    display: flex;
+    gap: 2rem;
+  }
+  button {
+    font-size: 1.5rem;
+    padding: 1rem 3rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.15s;
+  }
+  #yes {
+    background: #22c55e;
+    color: white;
+  }
+  #yes:hover { transform: scale(1.1); }
+  #no {
+    background: #ef4444;
+    color: white;
+    position: relative;
+    transition: top 0.15s ease-out, left 0.15s ease-out;
+  }
+</style>
+</head>
+<body>
+  <h1>Бухать будешь? 🍻</h1>
+  <div class="buttons">
+    <button id="yes">Да</button>
+    <button id="no">Нет</button>
+  </div>
+
+<script>
+  const noBtn = document.getElementById('no');
+  const yesBtn = document.getElementById('yes');
+  let fixed = false;
+
+  function escape() {
+    // Первый раз — вырываем кнопку из потока
+    if (!fixed) {
+      noBtn.style.position = 'fixed';
+      fixed = true;
+    }
+    const pad = 20;
+    const maxX = window.innerWidth - noBtn.offsetWidth - pad;
+    const maxY = window.innerHeight - noBtn.offsetHeight - pad;
+    noBtn.style.left = (pad + Math.random() * maxX) + 'px';
+    noBtn.style.top  = (pad + Math.random() * maxY) + 'px';
+  }
+
+  // Если мышка близко к кнопке — она убегает
+  document.addEventListener('mousemove', (e) => {
+    const r = noBtn.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+    if (dist < 120) escape();
+  });
+
+  // На всякий случай — если курсор попал прямо в кнопку
+  noBtn.addEventListener('mouseenter', escape);
+
+  // Клик по "Да" — финальный экран
+  yesBtn.addEventListener('click', () => {
+    document.body.innerHTML = '<h1 style="font-size:5rem">🍻 Красавчик!</h1>';
+  });
+</script>
+</body>
+</html>

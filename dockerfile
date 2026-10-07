@@ -1,30 +1,32 @@
-FROM node:20-alpine AS builder
+FROM golang:1.26-alpine AS builder
+
+RUN addgroup -g 1000 appgroup && adduser -u 1000 -G appgroup -S appuser
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY go.mod go.sum* ./
 
-RUN npm ci --only=production
+RUN go mod download
 
 COPY . .
 
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/server .
 
-FROM node:20-alpine AS production
 
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+FROM scratch
+
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
 
 WORKDIR /app
 
-COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
-COPY --from=builder --chown=appuser:appgroup /app/package*.json ./
-COPY --from=builder --chown=appuser:appgroup /app/src ./src
+COPY --from=builder /app/server /app/server
+COPY --from=builder /app/static /app/static
 
-ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8080
 
 USER appuser
 
-EXPOSE 3000
+EXPOSE 8080
 
-ENTRYPOINT ["node"]
-CMD ["src/index.js"]
+ENTRYPOINT ["/app/server"]

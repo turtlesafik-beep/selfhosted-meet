@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: go-meme:latest
+    container_name: meme-app
+    restart: unless-stopped
+    expose:
+      - "8080"          
+    networks:
+      - meme-net
+
+  nginx:
+    image: nginx:alpine
+    container_name: meme-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"         
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - meme-net
+
+networks:
+  meme-net:
+    driver: bridge

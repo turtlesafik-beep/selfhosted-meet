@@ -2,5 +2,9 @@
 .gitignore
 Dockerfile
 .dockerignore
+docker-compose.yml
+Makefile
+nginx/
 README.md
 *.md
+.env
